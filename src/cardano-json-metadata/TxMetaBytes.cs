@@ -5,6 +5,12 @@ namespace CardanoJsonMetadata
     {
         public TxMetaBytes(byte[] value)
         {
+            // guard code
+            if (value.Length > 64)
+            {
+                throw new Exception("Byte array length must be 64 or less");
+            }
+
             _value = value;
         }
 

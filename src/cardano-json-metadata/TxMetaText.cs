@@ -6,6 +6,13 @@ namespace CardanoJsonMetadata
     {
         public TxMetaText(string value)
         {
+            // guard code
+            // Strings must be at most 64 bytes when UTF-8 encoded.
+            if (Encoding.UTF8.GetByteCount(value) > 64)
+            {
+                throw new Exception("string must be at most 64 bytes when UTF-8 encoded");
+            }
+
             _value = value;
         }
 
