@@ -2,6 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Text;
 
 namespace CardanoJsonMetadata
 {
@@ -58,5 +62,63 @@ namespace CardanoJsonMetadata
         public bool TryGetValue(long key, [MaybeNullWhen(false)] out ITxMetadataValue value) => _internalDict.TryGetValue(key, out value);
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_internalDict).GetEnumerator();
+
+        public static TxMetadata FromJson(string json)
+        {
+            var doc = JsonDocument.Parse(json);
+            var rootMetadataValue = ParseElement(doc.RootElement);
+
+            var metadata = new TxMetadata();
+            metadata.Add(0, rootMetadataValue);
+
+            return metadata;
+        }
+
+        public static ITxMetadataValue ParseElement(JsonElement element)
+        {
+            ITxMetadataValue result;
+
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.Number:
+                    if (!element.TryGetInt64(out _))
+                    {
+                        throw new InvalidOperationException("TxMetadata does not support non-integer numbers: " + element.GetRawText());
+                    }
+
+                    result = new TxMetaNumber(element.GetInt64());
+                    break;
+                case JsonValueKind.String:
+                    // try to parse as a bytestring first
+                    try
+                    {
+                        result = new TxMetaBytes(Encoding.Unicode.GetBytes(element.GetString() ?? ""));
+                    }
+                    catch(Exception)
+                    {
+                        // fall back to text if bytestring fails
+                        result = new TxMetaText(element.GetString() ?? "");
+                    }
+                    break;
+                case JsonValueKind.Array:
+                    var innerValues = element.EnumerateArray()
+                        .Select(e => ParseElement(e))
+                        .ToArray();
+
+                    result = new TxMetaList(innerValues);
+                    break;
+                case JsonValueKind.Object:
+                    var objectMap = element.EnumerateObject()
+                        .Select(e => new TxMetaMapKVPair(new TxMetaText(e.Name), ParseElement(e.Value)))
+                        .ToArray();
+
+                    result = new TxMetaMap(objectMap);
+                    break;
+                default:
+                    throw new InvalidOperationException("JSON type not supported: " + element.ValueKind);
+            }
+
+            return result;
+        }
     }
 }
