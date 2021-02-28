@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{01348223-6
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardanoJsonMetadata.Tests", "test\CardanoJsonMetadata.Tests\CardanoJsonMetadata.Tests.csproj", "{5122FF2B-C5BE-491E-9214-90B214EEA2F4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardanoJsonMetadata.Cli", "src\cardano-json-metadata-cli\CardanoJsonMetadata.Cli.csproj", "{721ADA86-A0B7-4A6E-BD83-F060D0078666}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,9 +50,22 @@ Global
 		{5122FF2B-C5BE-491E-9214-90B214EEA2F4}.Release|x64.Build.0 = Release|Any CPU
 		{5122FF2B-C5BE-491E-9214-90B214EEA2F4}.Release|x86.ActiveCfg = Release|Any CPU
 		{5122FF2B-C5BE-491E-9214-90B214EEA2F4}.Release|x86.Build.0 = Release|Any CPU
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666}.Debug|x64.Build.0 = Debug|Any CPU
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666}.Debug|x86.Build.0 = Debug|Any CPU
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666}.Release|Any CPU.Build.0 = Release|Any CPU
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666}.Release|x64.ActiveCfg = Release|Any CPU
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666}.Release|x64.Build.0 = Release|Any CPU
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666}.Release|x86.ActiveCfg = Release|Any CPU
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6119A3EE-79FD-4A2D-A7F8-C5018D8D8ECD} = {139F2C68-C689-4F6A-8DC7-4ACF8521E3E3}
 		{5122FF2B-C5BE-491E-9214-90B214EEA2F4} = {01348223-68F5-4947-8FE1-D330EFDE1F47}
+		{721ADA86-A0B7-4A6E-BD83-F060D0078666} = {139F2C68-C689-4F6A-8DC7-4ACF8521E3E3}
 	EndGlobalSection
 EndGlobal
