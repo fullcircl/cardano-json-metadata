@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text;
+using System.Text.Json;
+
 namespace CardanoJsonMetadata
 {
     public class TxMetaText : ITxMetadataValue<string>, IComparable<TxMetaText>, IEquatable<TxMetaText>
@@ -54,6 +56,8 @@ namespace CardanoJsonMetadata
             }
         }
 
+        public TxDataType TxDataType => TxDataType.String;
+
         public int CompareTo(object? obj)
         {
             // guard code
@@ -82,6 +86,23 @@ namespace CardanoJsonMetadata
         public override int GetHashCode()
         {
             return ValueTyped.GetHashCode();
+        }
+
+        public void Serialize(Utf8JsonWriter writer)
+        {
+            writer.WriteStartObject();
+            writer.WriteString(TxDataType.Serialize(), ValueTyped);
+            writer.WriteEndObject();
+        }
+
+        public void ToJson(Utf8JsonWriter writer, string propertyName)
+        {
+            writer.WriteString(propertyName, ValueTyped);
+        }
+
+        public void ToJsonArray(Utf8JsonWriter writer)
+        {
+            writer.WriteStringValue(ValueTyped);
         }
 
         public static bool operator ==(TxMetaText? first, TxMetaText? second)

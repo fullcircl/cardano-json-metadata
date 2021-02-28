@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
+using System.IO;
+using System.Globalization;
 
 namespace CardanoJsonMetadata
 {
@@ -62,6 +63,64 @@ namespace CardanoJsonMetadata
         public bool TryGetValue(long key, [MaybeNullWhen(false)] out ITxMetadataValue value) => _internalDict.TryGetValue(key, out value);
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_internalDict).GetEnumerator();
+
+        public string ToJson()
+        {
+            if (Keys.Count == 0)
+            {
+                return "{}";
+            }
+
+            using var ms = new MemoryStream();
+            using var writer = new Utf8JsonWriter(ms);
+
+            if (Keys.Count == 1)
+            {
+                Values.First().ToJsonArray(writer);
+            }
+            else
+            {
+                writer.WriteStartObject();
+
+                foreach (var kvp in _internalDict)
+                {
+                    kvp.Value.ToJson(writer, kvp.Key.ToString(CultureInfo.InvariantCulture));
+                }
+
+                writer.WriteEndObject();
+            }
+
+            writer.Flush();
+
+            using var sr = new StreamReader(ms);
+            return sr.ReadToEnd();
+        }
+
+        public string Serialize()
+        {
+            if (Keys.Count == 0)
+            {
+                return "{}";
+            }
+
+            using var ms = new MemoryStream();
+            using var writer = new Utf8JsonWriter(ms);
+
+            writer.WriteStartObject();
+
+            foreach (var key in Keys)
+            {
+                writer.WriteStartObject(key.ToString(CultureInfo.InvariantCulture));
+                this[key].Serialize(writer);
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndObject();
+            writer.Flush();
+
+            using var sr = new StreamReader(ms);
+            return sr.ReadToEnd();
+        }
 
         public static TxMetadata FromJson(string json)
         {

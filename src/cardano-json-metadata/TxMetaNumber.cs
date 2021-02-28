@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json;
+
 namespace CardanoJsonMetadata
 {
     public class TxMetaNumber : ITxMetadataValue<long>, IComparable<TxMetaNumber>, IEquatable<TxMetaNumber>
@@ -23,6 +25,8 @@ namespace CardanoJsonMetadata
                 throw new Exception("Value type must be 'long'");
             }
         }
+
+        public TxDataType TxDataType => TxDataType.Int;
 
         public int CompareTo(object? obj)
         {
@@ -52,6 +56,23 @@ namespace CardanoJsonMetadata
         public override int GetHashCode()
         {
             return ValueTyped.GetHashCode();
+        }
+
+        public void Serialize(Utf8JsonWriter writer)
+        {
+            writer.WriteStartObject();
+            writer.WriteNumber(TxDataType.Serialize(), ValueTyped);
+            writer.WriteEndObject();
+        }
+
+        public void ToJson(Utf8JsonWriter writer, string propertyName)
+        {
+            writer.WriteNumber(propertyName, ValueTyped);
+        }
+
+        public void ToJsonArray(Utf8JsonWriter writer)
+        {
+            writer.WriteNumberValue(ValueTyped);
         }
 
         public static bool operator ==(TxMetaNumber? first, TxMetaNumber? second)
