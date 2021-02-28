@@ -9,11 +9,7 @@ namespace CardanoJsonMetadata
         public TxMetaText(string value)
         {
             // guard code
-            // Strings must be at most 64 bytes when UTF-8 encoded.
-            if (Encoding.UTF8.GetByteCount(value) > 64)
-            {
-                throw new Exception("string must be at most 64 bytes when UTF-8 encoded");
-            }
+            EnforceValueValidation(value);
 
             _value = value;
         }
@@ -26,11 +22,7 @@ namespace CardanoJsonMetadata
             set
             {
                 // guard code
-                // Strings must be at most 64 bytes when UTF-8 encoded.
-                if (Encoding.UTF8.GetByteCount(value) > 64)
-                {
-                    throw new Exception("string must be at most 64 bytes when UTF-8 encoded");
-                }
+                EnforceValueValidation(value);
 
                 _value = value;
             }
@@ -46,11 +38,7 @@ namespace CardanoJsonMetadata
                     throw new Exception("Value type must be 'string'");
                 }
 
-                // Strings must be at most 64 bytes when UTF-8 encoded.
-                if (Encoding.UTF8.GetByteCount((string)value) > 64)
-                {
-                    throw new Exception("string must be at most 64 bytes when UTF-8 encoded");
-                }
+                EnforceValueValidation((string)value);
 
                 _value = (string)value;
             }
@@ -119,6 +107,15 @@ namespace CardanoJsonMetadata
                 return !Equals(first, second);
 
             return !(first.Equals(second));
+        }
+
+        private void EnforceValueValidation(string value)
+        {
+            // Strings must be at most 64 bytes when UTF-8 encoded.
+            if (Encoding.UTF8.GetByteCount((string)value) > 64)
+            {
+                throw new Exception("String must be at most 64 bytes when UTF-8 encoded:" + Environment.NewLine + value);
+            }
         }
     }
 }
