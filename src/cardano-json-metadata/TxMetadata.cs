@@ -149,15 +149,14 @@ namespace CardanoJsonMetadata
                     result = new TxMetaNumber(element.GetInt64());
                     break;
                 case JsonValueKind.String:
-                    // try to parse as a bytestring first
-                    try
+                    string elementString = element.GetString() ?? "";
+                    if (TxMetaBytes.IsJsonByteString(elementString))
                     {
-                        result = new TxMetaBytes(Encoding.Unicode.GetBytes(element.GetString() ?? ""));
+                        result = new TxMetaBytes(Encoding.Unicode.GetBytes(elementString));
                     }
-                    catch(Exception)
+                    else
                     {
-                        // fall back to text if bytestring fails
-                        result = new TxMetaText(element.GetString() ?? "");
+                        result = new TxMetaText(elementString);
                     }
                     break;
                 case JsonValueKind.Array:

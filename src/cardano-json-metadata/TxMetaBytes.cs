@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace CardanoJsonMetadata
 {
@@ -15,6 +16,8 @@ namespace CardanoJsonMetadata
 
             _value = value;
         }
+
+        public const string BytesPrefix = "0x";
 
         private byte[] _value;
 
@@ -54,7 +57,8 @@ namespace CardanoJsonMetadata
 
         public TxDataType TxDataType => TxDataType.Bytes;
 
-        public string GetValueString() => Convert.ToHexString(ValueTyped);
+        public string GetJsonString() => BytesPrefix + Convert.ToHexString(ValueTyped);
+        public string GetCborString() => Convert.ToHexString(ValueTyped);
 
         public int CompareTo(object? obj)
         {
@@ -69,10 +73,10 @@ namespace CardanoJsonMetadata
                 throw new ArgumentException("'obj' must be of type 'TxMetaBytes'");
             }
 
-            return GetValueString().CompareTo(((TxMetaBytes)obj).GetValueString());
+            return GetCborString().CompareTo(((TxMetaBytes)obj).GetCborString());
         }
 
-        public int CompareTo(TxMetaBytes? other) => other == null ? 1 : GetValueString().CompareTo(other.GetValueString());
+        public int CompareTo(TxMetaBytes? other) => other == null ? 1 : GetCborString().CompareTo(other.GetCborString());
 
         public bool Equals(TxMetaBytes? other) => other != null && ValueTyped.Equals(other.ValueTyped);
 
@@ -89,18 +93,23 @@ namespace CardanoJsonMetadata
         public void Serialize(Utf8JsonWriter writer)
         {
             writer.WriteStartObject();
-            writer.WriteString(TxDataType.Serialize(), GetValueString());
+            writer.WriteString(TxDataType.Serialize(), GetCborString());
             writer.WriteEndObject();
         }
 
         public void ToJson(Utf8JsonWriter writer, string propertyName)
         {
-            writer.WriteString(propertyName, GetValueString());
+            writer.WriteString(propertyName, GetJsonString());
         }
 
         public void ToJsonArray(Utf8JsonWriter writer)
         {
-            writer.WriteStringValue(GetValueString());
+            writer.WriteStringValue(GetJsonString());
+        }
+
+        public static bool IsJsonByteString(string s)
+        {
+            return new Regex($"^{BytesPrefix}[0-9a-fA-F]*$").Match(s).Success;
         }
 
         public static bool operator ==(TxMetaBytes? first, TxMetaBytes? second)
