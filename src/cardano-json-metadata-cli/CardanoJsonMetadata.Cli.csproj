@@ -11,6 +11,10 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
   </PropertyGroup>
+    
+  <ItemGroup>
+    <ProjectReference Include="..\cardano-json-metadata\CardanoJsonMetadata.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
@@ -19,8 +23,5 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.IO.Pipelines" Version="5.0.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\cardano-json-metadata\CardanoJsonMetadata.csproj" />
   </ItemGroup>
 </Project>

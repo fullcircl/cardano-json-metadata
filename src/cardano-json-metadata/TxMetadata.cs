@@ -92,6 +92,7 @@ namespace CardanoJsonMetadata
 
             writer.Flush();
 
+            ms.Position = 0;
             using var sr = new StreamReader(ms);
             return sr.ReadToEnd();
         }

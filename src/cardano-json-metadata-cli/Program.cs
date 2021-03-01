@@ -65,7 +65,7 @@ namespace CardanoJsonMetadata.Cli
 
                 if (outputFile != null)
                 {
-                    _outputStream = File.OpenRead(outputFile.FullName);
+                    _outputStream = File.OpenWrite(outputFile.FullName);
                 }
 
                 if (_outputStream == null)
@@ -80,6 +80,7 @@ namespace CardanoJsonMetadata.Cli
 
                         break;
                     case ConversionDirection.ToSchema:
+
                         TxMetadata metadata; 
 
                         using (var sr = new StreamReader(_inputStream))
