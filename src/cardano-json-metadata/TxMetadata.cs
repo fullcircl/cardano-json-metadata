@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace CardanoJsonMetadata
 {
@@ -123,10 +124,23 @@ namespace CardanoJsonMetadata
             return sr.ReadToEnd();
         }
 
+        public static TxMetadata Deserialize(string json)
+        {
+            var doc = JsonDocument.Parse(json);
+            var metadata = new TxMetadata();
+
+            foreach (var childElement in doc.RootElement.EnumerateObject())
+            {
+                metadata.Add(long.Parse(childElement.Name), ParseSchemaElement(childElement.Value));
+            }
+
+            return metadata;
+        }
+
         public static TxMetadata FromJson(string json)
         {
             var doc = JsonDocument.Parse(json);
-            var rootMetadataValue = ParseElement(doc.RootElement);
+            var rootMetadataValue = ParseNonSchemaElement(doc.RootElement);
 
             var metadata = new TxMetadata();
             metadata.Add(0, rootMetadataValue);
@@ -134,7 +148,7 @@ namespace CardanoJsonMetadata
             return metadata;
         }
 
-        public static ITxMetadataValue ParseElement(JsonElement element)
+        public static ITxMetadataValue ParseNonSchemaElement(JsonElement element)
         {
             ITxMetadataValue result;
 
@@ -152,6 +166,8 @@ namespace CardanoJsonMetadata
                     string elementString = element.GetString() ?? "";
                     if (TxMetaBytes.IsJsonByteString(elementString))
                     {
+                        //remove leading "0x"
+                        elementString = new Regex($"^{TxMetaBytes.BytesPrefix}").Replace(elementString, "");
                         result = new TxMetaBytes(Encoding.Unicode.GetBytes(elementString));
                     }
                     else
@@ -161,20 +177,70 @@ namespace CardanoJsonMetadata
                     break;
                 case JsonValueKind.Array:
                     var innerValues = element.EnumerateArray()
-                        .Select(e => ParseElement(e))
+                        .Select(e => ParseNonSchemaElement(e))
                         .ToArray();
 
                     result = new TxMetaList(innerValues);
                     break;
                 case JsonValueKind.Object:
                     var objectMap = element.EnumerateObject()
-                        .Select(e => new TxMetaMapKVPair(new TxMetaText(e.Name), ParseElement(e.Value)))
+                        .Select(e => new TxMetaMapKVPair(new TxMetaText(e.Name), ParseNonSchemaElement(e.Value)))
                         .ToArray();
 
                     result = new TxMetaMap(objectMap);
                     break;
                 default:
                     throw new InvalidOperationException("JSON type not supported: " + element.ValueKind);
+            }
+
+            return result;
+        }
+
+        public static ITxMetadataValue ParseSchemaElement(JsonElement element)
+        {
+            ITxMetadataValue result;
+
+            if (element.ValueKind != JsonValueKind.Object)
+            {
+                throw new InvalidOperationException("All schema elements must be objects");
+            }
+
+            JsonProperty prop = element.EnumerateObject().Single();
+            var dataType = Enum.Parse<TxDataType>(prop.Name, ignoreCase: true);
+
+            switch (dataType)
+            {
+                case TxDataType.Int:
+                    result = new TxMetaNumber(element.GetInt64());
+                    break;
+                case TxDataType.Bytes:
+                    result = new TxMetaBytes(Encoding.Unicode.GetBytes(element.GetString() ?? ""));
+                    break;
+                case TxDataType.String:
+                    result = new TxMetaText(element.GetString() ?? "");
+                    break;
+                case TxDataType.List:
+                    var innerValues = element.EnumerateArray()
+                        .Select(e => ParseSchemaElement(e))
+                        .ToArray();
+
+                    result = new TxMetaList(innerValues);
+                    break;
+                case TxDataType.Map:
+                    var objectMap = element.EnumerateArray()
+                        .Select(e =>
+                        {
+                            var keyObject = e.GetProperty("k");
+                            var valueObject = e.GetProperty("v");
+
+                            return new TxMetaMapKVPair(ParseSchemaElement(keyObject), ParseSchemaElement(valueObject));
+                        })
+                        .ToArray();
+
+                    result = new TxMetaMap(objectMap);
+                    break;
+                default:
+                    throw new InvalidOperationException("Unexpected data type type: " + dataType);
             }
 
             return result;

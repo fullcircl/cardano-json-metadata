@@ -73,15 +73,25 @@ namespace CardanoJsonMetadata.Cli
                     _outputStream = Console.OpenStandardOutput();
                 }
 
+                TxMetadata metadata;
                 switch (direction)
                 {
                     case ConversionDirection.FromSchema:
-                        // deserialize and then ToJson();
+
+                        using (var sr = new StreamReader(_inputStream))
+                        {
+                            metadata = TxMetadata.Deserialize(await sr.ReadToEndAsync());
+                        }
+
+                        using (var sw = new StreamWriter(_outputStream))
+                        {
+                            await sw.WriteAsync(metadata.ToJson());
+                            await sw.FlushAsync();
+                            sw.Close();
+                        }
 
                         break;
                     case ConversionDirection.ToSchema:
-
-                        TxMetadata metadata; 
 
                         using (var sr = new StreamReader(_inputStream))
                         {
@@ -90,7 +100,7 @@ namespace CardanoJsonMetadata.Cli
 
                         using (var sw = new StreamWriter(_outputStream))
                         {
-                            await sw.WriteAsync(metadata.ToJson());
+                            await sw.WriteAsync(metadata.Serialize());
                             await sw.FlushAsync();
                             sw.Close();
                         }

@@ -42,7 +42,6 @@ namespace CardanoJsonMetadata
 
         public void Serialize(Utf8JsonWriter writer)
         {
-            writer.WriteStartObject();
             writer.WriteStartArray(TxDataType.Serialize());
 
             foreach (var kvPair in ValueTyped)
@@ -57,7 +56,6 @@ namespace CardanoJsonMetadata
             }
 
             writer.WriteEndArray();
-            writer.WriteEndObject();
         }
 
         public void ToJson(Utf8JsonWriter writer, string propertyName)
