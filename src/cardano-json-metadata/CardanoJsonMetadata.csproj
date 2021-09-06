@@ -10,7 +10,7 @@
     <Folder Include="Exceptions\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dahomey.Cbor" Version="1.15.0" />
+    <PackageReference Include="Dahomey.Cbor" Version="1.15.3" />
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
 </Project>
